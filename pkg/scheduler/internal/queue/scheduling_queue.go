@@ -294,7 +294,10 @@ func (p *PriorityQueue) AddUnschedulableIfNotPresent(pInfo *framework.PodInfo, p
 
 	// IfNotPresent, force-schedule, add pInfo into activeQ, reschedule; until schedule succeed
 	if pod != nil {
-		return p.activeQ.Add(pInfo)
+		_ = p.activeQ.Add(pInfo)
+		p.nominatedPods.add(pod, "")
+		p.cond.Broadcast()
+		return nil
 	}
 
 	if p.unschedulableQ.get(pod) != nil {
