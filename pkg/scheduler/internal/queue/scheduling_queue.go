@@ -291,6 +291,12 @@ func (p *PriorityQueue) AddUnschedulableIfNotPresent(pInfo *framework.PodInfo, p
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	pod := pInfo.Pod
+
+	// IfNotPresent, force-schedule, add pInfo into activeQ, reschedule; until schedule succeed
+	if pod != nil {
+		return p.activeQ.Add(pInfo)
+	}
+
 	if p.unschedulableQ.get(pod) != nil {
 		return fmt.Errorf("pod: %v is already present in unschedulable queue", nsNameForPod(pod))
 	}
